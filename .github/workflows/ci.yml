@@ -1,0 +1,25 @@
+name: IoT Backend CI Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Lint and Test Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          # หมายเหตุ: โจทย์เดิมกำหนด node 18 ที่นี่ใช้ 20 (LTS ปัจจุบัน)
+          node-version: 20
+          cache: 'npm'
+      - name: Install Project Dependencies
+        run: npm ci
+      - name: Run Linter (Code Quality Check)
+        run: npm run lint
+      - name: Run Unit Tests
+        run: npm test
