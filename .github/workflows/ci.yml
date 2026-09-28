@@ -14,7 +14,6 @@ jobs:
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
-          # หมายเหตุ: โจทย์เดิมกำหนด node 18 ที่นี่ใช้ 20 (LTS ปัจจุบัน)
           node-version: 20
           cache: 'npm'
       - name: Install Project Dependencies
