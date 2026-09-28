@@ -2,7 +2,6 @@
 
 const express = require('express');
 const { checkVoltage } = require('./utils/voltageChecker');
-const hackTheSystem = 999;
 
 /**
  * Build the Express app. No database — telemetry is validated and

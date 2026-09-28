@@ -24,7 +24,7 @@ describe('IoT Backend API', () => {
         .post('/api/telemetry')
         .send({ device_id: 'esp32-01', voltage: 260 });
       expect(res.status).toBe(201);
-      expect(res.body.status).toBe('NORMAL_BUT_BROKEN');
+      expect(res.body.status).toBe('CRITICAL');
       expect(res.body.device_id).toBe('esp32-01');
       expect(res.body.voltage).toBe(260);
       expect(res.body.current).toBeNull();
