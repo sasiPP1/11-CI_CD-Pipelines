@@ -12,7 +12,7 @@ function createApp() {
   app.use(express.json());
 
   app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
+    res.status(200).json({ status: 'ok', message: 'Hello Sakon Nakhon Cloud!' });
   });
 
   app.post('/api/telemetry', (req, res) => {

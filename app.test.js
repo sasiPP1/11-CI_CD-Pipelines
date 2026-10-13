@@ -11,10 +11,13 @@ describe('IoT Backend API', () => {
   });
 
   describe('GET /api/health', () => {
-    test('responds 200 with status ok', async () => {
+    test('responds 200 with status ok and cloud greeting', async () => {
       const res = await request(app).get('/api/health');
       expect(res.status).toBe(200);
-      expect(res.body).toEqual({ status: 'ok' });
+      expect(res.body).toEqual({
+        status: 'ok',
+        message: 'Hello Sakon Nakhon Cloud!',
+      });
     });
   });
 
