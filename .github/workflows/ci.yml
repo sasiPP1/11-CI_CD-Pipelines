@@ -1,6 +1,10 @@
 name: IoT Backend CI Pipeline
 
 on:
+  # Push ตรงเข้า main (เช่น commit หลังแก้ API ในกิจกรรมที่ 3) ต้องผ่าน lint + test
+  # เหมือนกัน ไม่งั้น CD จะ deploy โค้ดที่ยังไม่ผ่านการตรวจ
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 

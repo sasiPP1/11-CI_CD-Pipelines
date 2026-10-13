@@ -1,0 +1,30 @@
+# Runtime definition for the IoT backend container.
+# Used on the target server together with a real `.env` (see .env.example).
+#
+# Deployment flow (driven by .github/workflows/cd.yml):
+#   docker compose pull
+#   docker compose up -d --remove-orphans
+#
+# The image is built and pushed by GitHub Actions, so this file never builds
+# anything locally — it only pulls and runs.
+
+services:
+  iot-api:
+    image: ${DOCKERHUB_USERNAME:?DOCKERHUB_USERNAME must be set in .env}/iot-api:latest
+    container_name: iot-api
+    restart: unless-stopped
+    init: true
+    ports:
+      # HOST_PORT (default 3000) on the host -> 3000 inside the container.
+      # Open it with: sudo ufw allow ${HOST_PORT:-3000}/tcp
+      - "${HOST_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    healthcheck:
+      # busybox wget ships with node:20-alpine, no curl install needed.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
