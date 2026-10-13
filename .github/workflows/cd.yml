@@ -31,6 +31,24 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Check deploy secrets are configured
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          missing=()
+          for name in SERVER_HOST SERVER_USER SSH_PRIVATE_KEY; do
+            if [ -z "${!name}" ]; then
+              missing+=("$name")
+            fi
+          done
+          if [ "${#missing[@]}" -ne 0 ]; then
+            echo "::error::Missing GitHub Actions secret(s): ${missing[*]}"
+            echo "Add them under Settings -> Secrets and variables -> Actions -> New repository secret."
+            exit 1
+          fi
+          echo "All deploy secrets are present."
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.5
         env:
