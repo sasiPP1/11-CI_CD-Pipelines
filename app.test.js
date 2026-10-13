@@ -16,7 +16,7 @@ describe('IoT Backend API', () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual({
         status: 'ok',
-        message: 'Hello Sakon Nakhon Cloud!',
+        message: 'Hello Sakon Nakhon Cloud! ncwjj',
       });
     });
   });
