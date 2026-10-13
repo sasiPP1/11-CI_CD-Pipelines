@@ -6,7 +6,7 @@
 
 Backend API อย่างง่ายสำหรับรับค่า telemetry จากอุปกรณ์ IoT (เช่น ESP32) โดยไม่ต้องใช้ฐานข้อมูลจริง:
 
-- `GET /api/health` — ตรวจสอบสถานะเซิร์ฟเวอร์ ตอบกลับ `{ "status": "ok" }`
+- `GET /api/health` — ตรวจสอบสถานะเซิร์ฟเวอร์ ตอบกลับ `{ "status": "ok", "message": "Hello Sakon Nakhon Cloud!" }`
 - `POST /api/telemetry` — รับ `{ device_id, voltage, current? }` ตรวจสอบข้อมูล แล้วจัดประเภทแรงดันไฟฟ้าเป็น `LOW` / `NORMAL` / `CRITICAL` ด้วย `utils/voltageChecker.js`
 
 ## เทคโนโลยีที่ใช้
