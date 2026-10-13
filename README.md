@@ -19,7 +19,7 @@ Backend API อย่างง่ายสำหรับรับค่า tele
 | Test | Jest + Supertest |
 | CI | GitHub Actions (lint + test เมื่อเปิด PR และเมื่อ push เข้า `main`) |
 | CD | GitHub Actions (build + push Docker image ไป Docker Hub) |
-| Deploy | GitHub Actions + `appleboy/ssh-action` (SSH ดึง image มารันบนเซิร์ฟเวอร์จริง) |
+| Deploy | GitHub Actions + **self-hosted runner** (รันบนเซิร์ฟเวอร์จริง ไม่ต้องมี public IP) |
 | Container | Docker (node:20-alpine) ผ่าน `docker-compose.yml` |
 
 ## โครงสร้างไฟล์
@@ -68,7 +68,7 @@ docker compose up -d && docker compose ps
 | W11 กิจกรรมที่ 1 (CI) | `.github/workflows/ci.yml` | เปิด Pull Request เข้า `main` | checkout → setup Node 20 → `npm ci` → `npm run lint` → `npm test` |
 | W11 กิจกรรมที่ 2 (Secrets) | — (ตั้งค่าบนเว็บ GitHub) | — | เพิ่ม `DOCKERHUB_USERNAME` และ `DOCKERHUB_TOKEN` ใน Settings → Secrets |
 | W11 กิจกรรมที่ 3 (Build & Push) | `.github/workflows/cd.yml` | push/merge เข้า `main` | login Docker Hub → build image → push tag `latest` และ `<commit-sha>` |
-| W12 กิจกรรมที่ 2 (Provisioning) | `docker-compose.yml` + `DEPLOY_TH.md` | เตรียมเซิร์ฟเวอร์ด้วยมือ | ติดตั้ง Docker → วาง compose + `.env` → เปิดพอร์ต 3000 → สร้าง SSH key → ใส่ GitHub Secrets |
-| W12 กิจกรรมที่ 3 (Deploy) | `.github/workflows/cd.yml` | หลัง `build-and-push` สำเร็จ | SSH เข้าเซิร์ฟเวอร์ → `docker compose pull` → `up -d` → รอ healthcheck เป็น `healthy` (ถ้าไม่ healthy job จะ fail พร้อม log) |
+| W12 กิจกรรมที่ 2 (Provisioning) | `docker-compose.yml` + `DEPLOY_TH.md` | เตรียมเซิร์ฟเวอร์ด้วยมือ | ติดตั้ง Docker → วาง compose + `.env` → ลงทะเบียน self-hosted runner → ใส่ Docker Hub secrets |
+| W12 กิจกรรมที่ 3 (Deploy) | `.github/workflows/cd.yml` | หลัง `build-and-push` สำเร็จ | บนเซิร์ฟเวอร์เป้าหมาย: `docker compose pull` → `up -d` → รอ healthcheck เป็น `healthy` (ถ้าไม่ healthy job จะ fail พร้อม log) |
 
 คู่มือตั้งค่าเซิร์ฟเวอร์และ GitHub Secrets ทีละขั้นตอน ดูใน [DEPLOY_TH.md](DEPLOY_TH.md)

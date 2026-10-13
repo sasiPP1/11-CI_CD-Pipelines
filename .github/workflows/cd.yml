@@ -29,56 +29,32 @@ jobs:
   deploy-to-server:
     name: Deploy to Target Server
     needs: build-and-push
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, deploy]
     steps:
-      - name: Check deploy secrets are configured
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          missing=()
-          for name in SERVER_HOST SERVER_USER SSH_PRIVATE_KEY; do
-            if [ -z "${!name}" ]; then
-              missing+=("$name")
-            fi
-          done
-          if [ "${#missing[@]}" -ne 0 ]; then
-            echo "::error::Missing GitHub Actions secret(s): ${missing[*]}"
-            echo "Add them under Settings -> Secrets and variables -> Actions -> New repository secret."
-            exit 1
-          fi
-          echo "All deploy secrets are present."
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.5
+      - name: Deploy and wait for health
         env:
           DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/iot-api' }}
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: DEPLOY_PATH
-          script: |
-            set -e
-            cd "$DEPLOY_PATH"
-            docker compose pull
-            docker compose up -d --remove-orphans
+        run: |
+          set -e
+          cd "$DEPLOY_PATH"
+          docker compose pull
+          docker compose up -d --remove-orphans
 
-            cid=$(docker compose ps -q --all iot-api)
-            for i in $(seq 1 30); do
-              state=$(docker inspect --format '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo pending)
-              echo "healthcheck: $state ($i/30)"
-              if [ "$state" = "healthy" ]; then
-                docker compose ps
-                exit 0
-              fi
-              if [ "$state" = "unhealthy" ]; then
-                docker compose logs --tail 50
-                exit 1
-              fi
-              sleep 2
-            done
+          cid=$(docker compose ps -q --all iot-api)
+          for i in $(seq 1 30); do
+            state=$(docker inspect --format '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo pending)
+            echo "healthcheck: $state ($i/30)"
+            if [ "$state" = "healthy" ]; then
+              docker compose ps
+              exit 0
+            fi
+            if [ "$state" = "unhealthy" ]; then
+              docker compose logs --tail 50
+              exit 1
+            fi
+            sleep 2
+          done
 
-            echo "container did not become healthy in 60s"
-            docker compose logs --tail 50
-            exit 1
+          echo "container did not become healthy in 60s"
+          docker compose logs --tail 50
+          exit 1
